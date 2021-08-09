@@ -1,0 +1,23 @@
+{
+  "name": "ciandt/behat-common-extension",
+  "description": "Extension for common support.",
+  "type": "behat-extension",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Kang Miao",
+      "email": "kang@ciandt.com"
+    }
+  ],
+  "require": {
+    "behat/behat": "^3.8",
+    "busybee/urljoin": "dev-main",
+    "rikudou/array-merge-recursive": "^1.0.3",
+    "symfony/expression-language": "5.4.x-dev",
+    "symfony/routing": "^4.4 || ^5.0",
+    "onursimsek/unparse-url": "^0.1.0"
+  },
+  "autoload": {
+      "psr-4": { "": "src/" }
+  }
+}

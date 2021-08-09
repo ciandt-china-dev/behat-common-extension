@@ -1,0 +1,37 @@
+parameters:
+  # Repository.
+  ciandt_profile_extension.repository.class: Ciandt\Behat\ProfileExtension\ProfileRepository
+
+  # Gherkin parser.
+  ciandt_profile_extension.gherkin.parser.class: Ciandt\Behat\ProfileExtension\Gherkin\Parser
+
+  # Suite registry.
+  ciandt_profile_extension.suite.generator.generic.class: Ciandt\Behat\ProfileExtension\Suite\Generator\GenericSuiteGenerator
+
+  # Parameters.
+  ciandt_profile_extension.parameters: {}
+
+services:
+  ciandt_profile_extension.repository:
+    class: '%ciandt_profile_extension.repository.class%'
+    arguments:
+      - '%ciandt_profile_extension.parameters%'
+
+  ciandt_profile_extension.gherkin.parser.decorator:
+    class: '%ciandt_profile_extension.gherkin.parser.class%'
+    public: false
+    decorates: gherkin.parser
+    decoration_on_invalid: ignore
+    arguments:
+      - '@ciandt_profile_extension.gherkin.parser.decorator.inner'
+      - '@gherkin.lexer'
+      - '@ciandt_profile_extension.repository'
+
+  ciandt_profile_extension.suite.generator.generic.decorator:
+    class: '%ciandt_profile_extension.suite.generator.generic.class%'
+    public: false
+    decorates: suite.generator.generic
+    decoration_on_invalid: ignore
+    arguments:
+      - '@ciandt_profile_extension.suite.generator.generic.decorator.inner'
+      - '%suite.generic.default_settings%'

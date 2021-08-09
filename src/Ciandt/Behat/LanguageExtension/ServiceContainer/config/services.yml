@@ -1,0 +1,37 @@
+parameters:
+  # Repository.
+  ciandt_language_extension.repository.class: Ciandt\Behat\LanguageExtension\LanguageRepository
+
+  # Context initializer.
+  ciandt_language_extension.context.initializer.class: Ciandt\Behat\LanguageExtension\Context\Initializer\LanguageAwareInitializer
+
+  # Gherkin parser.
+  ciandt_language_extension.gherkin.parser.class: Ciandt\Behat\LanguageExtension\Gherkin\Parser
+
+  # Parameters.
+  ciandt_language_extension.parameters: {}
+
+services:
+  ciandt_language_extension.repository:
+    class: '%ciandt_language_extension.repository.class%'
+    arguments:
+      - '%ciandt_language_extension.parameters%'
+
+  ciandt_language_extension.context.initializer:
+    class: '%ciandt_language_extension.context.initializer.class%'
+    arguments:
+      - '@ciandt_language_extension.repository'
+    tags:
+      - { name: context.initializer }
+
+  ciandt_language_extension.gherkin.parser.decorator:
+    class: '%ciandt_language_extension.gherkin.parser.class%'
+    public: false
+    decorates: gherkin.parser
+    decoration_on_invalid: ignore
+    arguments:
+      - '@ciandt_language_extension.gherkin.parser.decorator.inner'
+      - '@gherkin.lexer'
+      - '@ciandt_language_extension.repository'
+      - '%paths.base%'
+      - "@=container.hasParameter('suite.generic.default_settings') ? parameter('suite.generic.default_settings') : []"

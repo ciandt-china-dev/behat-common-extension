@@ -1,0 +1,51 @@
+parameters:
+  # Repository.
+  ciandt_environment_extension.repository.class: Ciandt\Behat\EnvironmentExtension\EnvironmentRepository
+
+  # Context initializer.
+  ciandt_environment_extension.context.initializer.class: Ciandt\Behat\EnvironmentExtension\Context\Initializer\EnvironmentAwareInitializer
+
+  # Gherkin parser.
+  ciandt_environment_extension.gherkin.parser.class: Ciandt\Behat\EnvironmentExtension\Gherkin\Parser
+
+  # Cli.
+  ciandt_environment_extension.cli.class: Ciandt\Behat\EnvironmentExtension\Cli\EnvironmentController
+
+  # Parameters.
+  ciandt_environment_extension.default_environment: ''
+  ciandt_environment_extension.parameters: {}
+  ciandt_environment_extension.environment_variables: {}
+
+services:
+  ciandt_environment_extension.repository:
+    class: '%ciandt_environment_extension.repository.class%'
+    arguments:
+      - '%ciandt_environment_extension.default_environment%'
+      - '%ciandt_environment_extension.environment_variables%'
+      - '%ciandt_environment_extension.parameters%'
+
+  ciandt_environment_extension.context.initializer:
+    class: '%ciandt_environment_extension.context.initializer.class%'
+    arguments:
+      - '@ciandt_environment_extension.repository'
+    tags:
+      - { name: context.initializer }
+
+  ciandt_environment_extension.gherkin.parser.decorator:
+    class: '%ciandt_environment_extension.gherkin.parser.class%'
+    public: false
+    decorates: gherkin.parser
+    decoration_on_invalid: ignore
+    arguments:
+      - '@ciandt_environment_extension.gherkin.parser.decorator.inner'
+      - '@gherkin.lexer'
+      - '@ciandt_environment_extension.repository'
+      - '%paths.base%'
+      - "@=container.hasParameter('suite.generic.default_settings') ? parameter('suite.generic.default_settings') : []"
+
+  ciandt_environment_extension.cli:
+    class: '%ciandt_environment_extension.cli.class%'
+    arguments:
+      - '@ciandt_environment_extension.repository'
+    tags:
+      - { name: cli.controller, priority: 1 }
